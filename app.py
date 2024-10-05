@@ -1,32 +1,18 @@
 from flask import Flask, request, jsonify
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
+from models import db, BloodPressure  # 导入 models 和 db
 from datetime import datetime
-import os
 
 app = Flask(__name__)
-
-# Load configuration based on environment
-if os.environ.get('FLASK_ENV') == 'production':
-    app.config.from_object('config.ProductionConfig')
-elif os.environ.get('FLASK_ENV') == 'testing':
-    app.config.from_object('config.TestingConfig')
-else:
-    app.config.from_object('config.DevelopmentConfig')
+app.config.from_object('config.Config')
 
 CORS(app)  # Enable Cross-Origin Resource Sharing
 
-db = SQLAlchemy(app)
+# 初始化 SQLAlchemy
+db.init_app(app)
 
-# Blood Pressure Model
-class BloodPressure(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    systolic = db.Column(db.Integer, nullable=False)
-    diastolic = db.Column(db.Integer, nullable=False)
-    heart_rate = db.Column(db.Integer, nullable=False)
-    measurement_time = db.Column(db.DateTime, default=datetime.utcnow)
-
-# Initialize database using app context
+# 创建数据库表
 with app.app_context():
     db.create_all()
 

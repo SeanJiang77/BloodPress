@@ -1,0 +1,45 @@
+Index: app.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from flask import Flask, request, jsonify\r\nfrom flask_sqlalchemy import SQLAlchemy\r\nfrom flask_cors import CORS\r\nfrom datetime import datetime\r\nimport os\r\n\r\napp = Flask(__name__)\r\n\r\n# Load configuration based on environment\r\nif os.environ.get('FLASK_ENV') == 'production':\r\n    app.config.from_object('config.ProductionConfig')\r\nelif os.environ.get('FLASK_ENV') == 'testing':\r\n    app.config.from_object('config.TestingConfig')\r\nelse:\r\n    app.config.from_object('config.DevelopmentConfig')\r\n\r\nCORS(app)  # Enable Cross-Origin Resource Sharing\r\n\r\ndb = SQLAlchemy(app)\r\n\r\n# Blood Pressure Model\r\nclass BloodPressure(db.Model):\r\n    id = db.Column(db.Integer, primary_key=True)\r\n    systolic = db.Column(db.Integer, nullable=False)\r\n    diastolic = db.Column(db.Integer, nullable=False)\r\n    heart_rate = db.Column(db.Integer, nullable=False)\r\n    measurement_time = db.Column(db.DateTime, default=datetime.utcnow)\r\n\r\n# Initialize database using app context\r\nwith app.app_context():\r\n    db.create_all()\r\n\r\n# POST: Add new blood pressure record\r\n@app.route('/api/bloodpressure', methods=['POST'])\r\ndef add_bloodpressure():\r\n    data = request.get_json()\r\n    new_record = BloodPressure(\r\n        systolic=data['systolic'],\r\n        diastolic=data['diastolic'],\r\n        heart_rate=data['heart_rate'],\r\n        measurement_time=datetime.strptime(data['measurement_time'], '%Y-%m-%d %H:%M:%S')\r\n    )\r\n    db.session.add(new_record)\r\n    db.session.commit()\r\n    return jsonify({\"message\": \"Record added\"}), 201\r\n\r\n# GET: Fetch all blood pressure records\r\n@app.route('/api/bloodpressure', methods=['GET'])\r\ndef get_bloodpressure():\r\n    records = BloodPressure.query.all()\r\n    result = [\r\n        {\r\n            \"systolic\": record.systolic,\r\n            \"diastolic\": record.diastolic,\r\n            \"heart_rate\": record.heart_rate,\r\n            \"measurement_time\": record.measurement_time.strftime('%Y-%m-%d %H:%M:%S')\r\n        }\r\n        for record in records\r\n    ]\r\n    return jsonify(result), 200\r\n\r\nif __name__ == '__main__':\r\n    app.run(debug=True)\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/app.py b/app.py
+--- a/app.py	(revision 9011e7576c66a6e20164395c439d6ca9f4ab0424)
++++ b/app.py	(date 1728162146513)
+@@ -6,6 +6,7 @@
+ 
+ app = Flask(__name__)
+ 
++
+ # Load configuration based on environment
+ if os.environ.get('FLASK_ENV') == 'production':
+     app.config.from_object('config.ProductionConfig')
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"AutoImportSettings\">\r\n    <option name=\"autoReloadType\" value=\"SELECTIVE\" />\r\n  </component>\r\n  <component name=\"ChangeListManager\">\r\n    <list default=\"true\" id=\"4fa47b31-c88a-4920-a08e-590b9afc1fa6\" name=\"更改\" comment=\"\">\r\n      <change beforePath=\"$PROJECT_DIR$/.idea/workspace.xml\" beforeDir=\"false\" afterPath=\"$PROJECT_DIR$/.idea/workspace.xml\" afterDir=\"false\" />\r\n    </list>\r\n    <option name=\"SHOW_DIALOG\" value=\"false\" />\r\n    <option name=\"HIGHLIGHT_CONFLICTS\" value=\"true\" />\r\n    <option name=\"HIGHLIGHT_NON_ACTIVE_CHANGELIST\" value=\"false\" />\r\n    <option name=\"LAST_RESOLUTION\" value=\"IGNORE\" />\r\n  </component>\r\n  <component name=\"FileTemplateManagerImpl\">\r\n    <option name=\"RECENT_TEMPLATES\">\r\n      <list>\r\n        <option value=\"Python Script\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n  <component name=\"Git.Settings\">\r\n    <option name=\"RECENT_GIT_ROOT_PATH\" value=\"$PROJECT_DIR$\" />\r\n  </component>\r\n  <component name=\"ProjectColorInfo\">{\r\n  &quot;associatedIndex&quot;: 5\r\n}</component>\r\n  <component name=\"ProjectId\" id=\"2n27xHoYq8yAiaqbDftj3HCahRu\" />\r\n  <component name=\"ProjectLevelVcsManager\" settingsEditedManually=\"true\">\r\n    <ConfirmationsSetting value=\"2\" id=\"Add\" />\r\n  </component>\r\n  <component name=\"ProjectViewState\">\r\n    <option name=\"hideEmptyMiddlePackages\" value=\"true\" />\r\n    <option name=\"showLibraryContents\" value=\"true\" />\r\n  </component>\r\n  <component name=\"PropertiesComponent\"><![CDATA[{\r\n  \"keyToString\": {\r\n    \"Python.app.executor\": \"Run\",\r\n    \"RunOnceActivity.ShowReadmeOnStart\": \"true\",\r\n    \"git-widget-placeholder\": \"master\",\r\n    \"ignore.virus.scanning.warn.message\": \"true\",\r\n    \"node.js.detected.package.eslint\": \"true\",\r\n    \"node.js.detected.package.tslint\": \"true\",\r\n    \"node.js.selected.package.eslint\": \"(autodetect)\",\r\n    \"node.js.selected.package.tslint\": \"(autodetect)\",\r\n    \"nodejs_package_manager_path\": \"npm\",\r\n    \"vue.rearranger.settings.migration\": \"true\"\r\n  }\r\n}]]></component>\r\n  <component name=\"RecentsManager\">\r\n    <key name=\"MoveFile.RECENT_KEYS\">\r\n      <recent name=\"D:\\BloodPressBE\\BloodPressBackend\" />\r\n      <recent name=\"D:\\BloodPressBE\\BloodPressBackend\\blood_pressure_app\" />\r\n    </key>\r\n  </component>\r\n  <component name=\"SharedIndexes\">\r\n    <attachedChunks>\r\n      <set>\r\n        <option value=\"bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-PY-242.23339.19\" />\r\n        <option value=\"bundled-python-sdk-0029f7779945-399fe30bd8c1-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-242.23339.19\" />\r\n      </set>\r\n    </attachedChunks>\r\n  </component>\r\n  <component name=\"SpellCheckerSettings\" RuntimeDictionaries=\"0\" Folders=\"0\" CustomDictionaries=\"0\" DefaultDictionary=\"应用程序级\" UseSingleDictionary=\"true\" transferred=\"true\" />\r\n  <component name=\"TaskManager\">\r\n    <task active=\"true\" id=\"Default\" summary=\"默认任务\">\r\n      <changelist id=\"4fa47b31-c88a-4920-a08e-590b9afc1fa6\" name=\"更改\" comment=\"\" />\r\n      <created>1728159561352</created>\r\n      <option name=\"number\" value=\"Default\" />\r\n      <option name=\"presentableId\" value=\"Default\" />\r\n      <updated>1728159561352</updated>\r\n      <workItem from=\"1728159562365\" duration=\"2162000\" />\r\n      <workItem from=\"1728161755035\" duration=\"228000\" />\r\n    </task>\r\n    <servers />\r\n  </component>\r\n  <component name=\"TypeScriptGeneratedFilesManager\">\r\n    <option name=\"version\" value=\"3\" />\r\n  </component>\r\n  <component name=\"com.intellij.coverage.CoverageDataManagerImpl\">\r\n    <SUITE FILE_PATH=\"coverage/BloodPressBackend$app.coverage\" NAME=\"app 覆盖结果\" MODIFIED=\"1728160953221\" SOURCE_PROVIDER=\"com.intellij.coverage.DefaultCoverageFileProvider\" RUNNER=\"coverage.py\" COVERAGE_BY_TEST_ENABLED=\"false\" COVERAGE_TRACING_ENABLED=\"false\" WORKING_DIRECTORY=\"$PROJECT_DIR$\" />\r\n  </component>\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	(revision 9011e7576c66a6e20164395c439d6ca9f4ab0424)
++++ b/.idea/workspace.xml	(date 1728162197223)
+@@ -6,6 +6,7 @@
+   <component name="ChangeListManager">
+     <list default="true" id="4fa47b31-c88a-4920-a08e-590b9afc1fa6" name="更改" comment="">
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -70,7 +71,7 @@
+       <option name="presentableId" value="Default" />
+       <updated>1728159561352</updated>
+       <workItem from="1728159562365" duration="2162000" />
+-      <workItem from="1728161755035" duration="228000" />
++      <workItem from="1728161755035" duration="437000" />
+     </task>
+     <servers />
+   </component>
